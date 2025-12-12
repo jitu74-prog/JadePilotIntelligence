@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iframe Test Host Application</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .url-input {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 25px;
+            width: 300px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .btn {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        .toolbar {
+            background: #ecf0f1;
+            padding: 15px 30px;
+            border-bottom: 1px solid #bdc3c7;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .size-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .size-btn {
+            padding: 5px 12px;
+            border: 1px solid #bdc3c7;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .size-btn:hover, .size-btn.active {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+
+        .iframe-container {
+            padding: 30px;
+            background: #f8f9fa;
+            min-height: 600px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .iframe-wrapper {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            width: 100%;
+            height: 600px;
+            position: relative;
+        }
+
+        .iframe-wrapper.mobile {
+            width: 375px;
+            height: 667px;
+        }
+
+        .iframe-wrapper.tablet {
+            width: 768px;
+            height: 600px;
+        }
+
+        .iframe-wrapper.desktop {
+            width: 100%;
+            height: 600px;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        .placeholder {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            color: #7f8c8d;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .placeholder-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .status-bar {
+            background: #2c3e50;
+            color: white;
+            padding: 10px 30px;
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #27ae60;
+        }
+
+        .error-message {
+            background: #e74c3c;
+            color: white;
+            padding: 15px 30px;
+            margin: 20px 30px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .info-section {
+            background: #3498db;
+            color: white;
+            padding: 15px 30px;
+            margin: 20px 30px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .info-section h3 {
+            margin-bottom: 10px;
+        }
+
+        .info-section code {
+            background: rgba(255,255,255,0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .url-input {
+                width: 100%;
+            }
+            
+            .toolbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .iframe-container {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🖼️ Iframe Test Host</h1>
+            <div class="controls">
+                <input type="url" class="url-input" id="urlInput" placeholder="Enter your web portal URL (e.g., https://example.com)">
+                <button class="btn btn-primary" onclick="loadIframe()">Load Portal</button>
+                <button class="btn btn-secondary" onclick="clearIframe()">Clear</button>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h3>🌐 Hosted Iframe Test Application</h3>
+            <p>This application is hosted at: <code id="currentHostUrl">Loading...</code></p>
+            <p>Use this URL to test iframe embedding from external applications</p>
+        </div>
+
+        <div class="toolbar">
+            <div class="size-controls">
+                <span>View Size:</span>
+                <button class="size-btn active" onclick="setSize('desktop')">Desktop</button>
+                <button class="size-btn" onclick="setSize('tablet')">Tablet</button>
+                <button class="size-btn" onclick="setSize('mobile')">Mobile</button>
+            </div>
+            <div>
+                <span id="currentUrl">No URL loaded</span>
+            </div>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+
+        <div class="iframe-container">
+            <div class="iframe-wrapper desktop" id="iframeWrapper">
+                <div class="placeholder" id="placeholder">
+                    <div class="placeholder-icon">🌐</div>
+                    <h3>Ready to Test Your Web Portal</h3>
+                    <p>Enter your web portal URL above and click "Load Portal" to embed it in this iframe.</p>
+                    <br>
+                    <p><strong>Tips:</strong></p>
+                    <ul style="text-align: left; margin-top: 10px;">
+                        <li>Make sure your portal allows iframe embedding</li>
+                        <li>Test different screen sizes using the buttons above</li>
+                        <li>Check browser console for any errors</li>
+                        <li>Some sites block iframe embedding for security</li>
+                        <li>This app is hosted publicly for iframe testing</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-indicator">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">Ready</span>
+            </div>
+            <div>
+                <span>Iframe Test Host v1.0 - Hosted Edition</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentIframe = null;
+
+        // Set the current host URL
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('currentHostUrl').textContent = window.location.href;
+        });
+
+        function loadIframe() {
+            const urlInput = document.getElementById('urlInput');
+            const url = urlInput.value.trim();
+            
+            if (!url) {
+                showError('Please enter a valid URL');
+                return;
+            }
+
+            // Add protocol if missing
+            let finalUrl = url;
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                finalUrl = 'https://' + url;
+            }
+
+            hideError();
+            setStatus('loading', 'Loading...');
+            
+            const wrapper = document.getElementById('iframeWrapper');
+            const placeholder = document.getElementById('placeholder');
+            
+            // Remove existing iframe
+            if (currentIframe) {
+                currentIframe.remove();
+            }
+
+            // Hide placeholder
+            placeholder.style.display = 'none';
+
+            // Create new iframe
+            currentIframe = document.createElement('iframe');
+            currentIframe.src = finalUrl;
+            currentIframe.style.width = '100%';
+            currentIframe.style.height = '100%';
+            currentIframe.style.border = 'none';
+            
+            // Handle iframe load events
+            currentIframe.onload = function() {
+                setStatus('success', 'Portal loaded successfully');
+                document.getElementById('currentUrl').textContent = finalUrl;
+            };
+
+            currentIframe.onerror = function() {
+                setStatus('error', 'Failed to load portal');
+                showError('Failed to load the portal. The site might not allow iframe embedding.');
+            };
+
+            wrapper.appendChild(currentIframe);
+        }
+
+        function clearIframe() {
+            if (currentIframe) {
+                currentIframe.remove();
+                currentIframe = null;
+            }
+            
+            document.getElementById('placeholder').style.display = 'flex';
+            document.getElementById('urlInput').value = '';
+            document.getElementById('currentUrl').textContent = 'No URL loaded';
+            setStatus('ready', 'Ready');
+            hideError();
+        }
+
+        function setSize(size) {
+            const wrapper = document.getElementById('iframeWrapper');
+            const buttons = document.querySelectorAll('.size-btn');
+            
+            // Remove active class from all buttons
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+            
+            // Remove all size classes
+            wrapper.classList.remove('mobile', 'tablet', 'desktop');
+            
+            // Add new size class
+            wrapper.classList.add(size);
+        }
+
+        function setStatus(type, message) {
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+            
+            statusText.textContent = message;
+            
+            switch(type) {
+                case 'loading':
+                    statusDot.style.background = '#f39c12';
+                    break;
+                case 'success':
+                    statusDot.style.background = '#27ae60';
+                    break;
+                case 'error':
+                    statusDot.style.background = '#e74c3c';
+                    break;
+                default:
+                    statusDot.style.background = '#95a5a6';
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function hideError() {
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+
+        // Handle Enter key in URL input
+        document.getElementById('urlInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                loadIframe();
+            }
+        });
+
+        // Example URLs for testing
+        const exampleUrls = [
+            'https://example.com',
+            'https://google.com',
+            'https://github.com',
+            'http://localhost:3000',
+            'http://localhost:8080'
+        ];
+
+        // Add some example suggestions
+        document.getElementById('urlInput').addEventListener('focus', function() {
+            if (!this.value) {
+                this.placeholder = 'Try: ' + exampleUrls[Math.floor(Math.random() * exampleUrls.length)];
+            }
+        });
+    </script>
+</body>
+</html>
