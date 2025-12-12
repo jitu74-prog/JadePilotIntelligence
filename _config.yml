@@ -1,0 +1,34 @@
+# GitHub Pages Configuration
+title: "Iframe Test Host Application"
+description: "A hosted web application for testing iframe embedding of web portals"
+baseurl: ""
+url: "https://jitu74-prog.github.io"
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+theme: minima
+
+# Exclude files from processing
+exclude:
+  - README.md
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+
+# GitHub Pages specific settings
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+
+# SEO and metadata
+author: "JadePilotIntelligence"
+twitter:
+  username: ""
+  card: summary
+
+# Navigation
+header_pages:
+  - index.html
+
